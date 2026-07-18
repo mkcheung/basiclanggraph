@@ -3,6 +3,11 @@ from langgraph.graph import END, START, StateGraph
 from util.langgraph_util import display
 import asyncio
 
+# What is the purpose of asynchronous invocation?
+# It runs tasks in the background without blocking current options by waiting for the task’s completion
+# Note: it’s not about running everything at once. It’s more of coming back to pick up where you left off at
+
+
 class HelloWorldState(TypedDict):
     message: str
 
