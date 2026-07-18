@@ -23,5 +23,6 @@ graph.add_edge("hello", "bye")
 graph.add_edge("bye", END)
 
 runnable = graph.compile()
+display(runnable)
 output = runnable.invoke({"message": "Mars"})
 print(output)
