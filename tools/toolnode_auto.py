@@ -2,6 +2,9 @@ from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage
 from langchain_core.tools import tool
 from langgraph.prebuilt import ToolNode
+from langgraph.graph import MessagesState, StateGraph, START, END
+from langgraph.checkpoint.memory import MemorySaver 
+from IPython.display import display
 
 @tool 
 def get_restaurant_recommendations(location:str):
@@ -15,6 +18,7 @@ def get_restaurant_recommendations(location:str):
 
 @tool
 def book_table(restaurant: str, time: str):
+    """Books a restaurant for a specific time."""
     return f"Table booked at {restaurant} for {time}."
 
 tools = [get_restaurant_recommendations, book_table]
@@ -45,15 +49,27 @@ graph = workflow.compile()
 
 display(graph)
 
+checkpointer = MemorySaver()
+graph = workflow.compile(checkpointer=checkpointer)
+config = {"configurable": {"thread_id": "1"}}
+
 response = graph.invoke(
-    {"message": [HumanMessage(content="Can you recommend just one top restaurant in Munich? "
-                                       "The response should contain just the restaurant name")]})
+    {"messages": [HumanMessage(content="Can you recommend just one top restaurant in Munich? "
+                                       "The response should contain just the restaurant name")]},
+    config
 )
 
 recommended_restaurant = response["messages"][-1].content
 print(recommended_restaurant)
-# checkpointer = MemorySaver()
-# graph = workflow.complile(checkpointer=checkpointer)
+
+response = graph.invoke(
+    {"messages": [HumanMessage(content="Please book a table at this restaurant ")]},
+    config
+)
+
+recommended_restaurant = response["messages"][-1].content
+print(recommended_restaurant)
+
 
 # display(graph)
 
